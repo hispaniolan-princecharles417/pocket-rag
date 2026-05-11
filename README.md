@@ -222,8 +222,6 @@ If you upload an unsupported PDF, the app will show a clear error message in the
 | `ollama pull` fails | Make sure Ollama is installed and running (`ollama serve` in terminal) |
 | Docker command fails | Make sure Docker Desktop is open and running |
 | `npm install` errors | Try `npm install --legacy-peer-deps` — the flag is required |
-| **Windows:** `Cannot find module 'lightningcss.win32-x64-msvc.node'` | Delete `node_modules`, then run `npm install --legacy-peer-deps` again — `lightningcss` is now an explicit dependency and will install the correct Windows binary automatically |
-| **Windows:** `EBADPLATFORM` error for `@tailwindcss/oxide-darwin-arm64` | You have an old version of the repo. Pull the latest code — this macOS-only package has been removed from `package.json` |
 
 ---
 
