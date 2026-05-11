@@ -49,3 +49,7 @@ package-lock.json
 
 # debug logs
 log.txt
+
+# local debug output (set LOCAL_DEBUGGING=true in lib/settings.ts)
+_local_debug/*
+!_local_debug/.gitkeep

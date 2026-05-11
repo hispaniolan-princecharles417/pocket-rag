@@ -173,6 +173,25 @@ Open **http://localhost:3000** in your browser. You should see the PDF Assistant
 
 ---
 
+## Limitations
+
+> [!IMPORTANT]
+> **Only text-based PDFs are supported.**
+
+This app extracts text directly from the PDF file. It does **not** support:
+
+- ❌ **Scanned PDFs** — PDFs that are photos/images of documents (no selectable text layer)
+- ❌ **Image-only PDFs** — PDFs where content is embedded as pictures
+- ❌ **Handwritten documents** — even if scanned
+- ❌ **Password-protected PDFs**
+- ❌ **OCR (Optical Character Recognition)** — not built in
+
+**How to check if your PDF is supported:** Open it in any viewer and try to highlight text with your cursor. If you can select individual words, it will work. If the cursor selects the whole page like an image, it won't.
+
+If you upload an unsupported PDF, the app will show a clear error message in the chat.
+
+---
+
 ## Troubleshooting
 
 | Problem | Fix |
@@ -182,6 +201,34 @@ Open **http://localhost:3000** in your browser. You should see the PDF Assistant
 | `ollama pull` fails | Make sure Ollama is installed and running (`ollama serve` in terminal) |
 | Docker command fails | Make sure Docker Desktop is open and running |
 | `npm install` errors | Try `npm install --legacy-peer-deps` — the flag is required |
+
+---
+
+## Local Debugging
+
+For development, the app has a built-in debug mode controlled by `lib/settings.ts`:
+
+```ts
+// lib/settings.ts
+const settings = {
+  LOCAL_DEBUGGING: true,  // set to false to disable
+};
+```
+
+When `LOCAL_DEBUGGING` is `true`, two files are automatically written to the `_local_debug/` folder:
+
+| File | Written when | Contents |
+|---|---|---|
+| `debug_uploaded_file_chunks.txt` | PDF is uploaded | Total chunk count + full text of every chunk |
+| `debug_qna.txt` | Question is asked | Timestamp, question, retrieved context, LLM answer |
+
+**Use these to diagnose:**
+- Is the PDF being parsed correctly? (`debug_uploaded_file_chunks.txt`)
+- Is Weaviate retrieving the right context? (`debug_qna.txt`)
+- Is the LLM answering from context or hallucinating?
+
+> [!NOTE]
+> The `_local_debug/` folder is git-ignored — debug files are never pushed to GitHub.
 
 ---
 
@@ -198,6 +245,10 @@ doc-search-app/
 │   ├── page.tsx               # Chat UI
 │   └── layout.tsx             # Root layout
 ├── lib/
-│   └── rag.ts                 # Core RAG logic (loadPDF, askQuestion, deletePDFData)
+│   ├── rag.ts                 # Core RAG logic (loadPDF, askQuestion, deletePDFData)
+│   └── settings.ts            # App-wide settings (LOCAL_DEBUGGING toggle)
+├── _local_debug/              # Debug output — git-ignored, local use only
+│   ├── debug_uploaded_file_chunks.txt
+│   └── debug_qna.txt
 └── uploads/                   # Temporary storage for uploaded PDFs
 ```

@@ -26,12 +26,18 @@ export async function POST(req: Request) {
 
   await writeFile(filePath, buffer);
 
-  const result = await loadPDF(filePath);
-
-  return Response.json({
-    success: true,
-    fileName: file.name,
-    indexed: true,
-    ...result,
-  });
+  try {
+    const result = await loadPDF(filePath);
+    return Response.json({
+      success: true,
+      fileName: file.name,
+      indexed: true,
+      ...result,
+    });
+  } catch (err: any) {
+    return Response.json(
+      { success: false, error: err.message },
+      { status: 400 }
+    );
+  }
 }

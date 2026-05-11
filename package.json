@@ -10,10 +10,14 @@
   },
   "dependencies": {
     "@langchain/community": "^0.3.36",
+    "@langchain/core": "^0.3.0",
     "@langchain/ollama": "^0.2.0",
     "@langchain/weaviate": "^0.2.3",
     "@tailwindcss/oxide-darwin-arm64": "^4.3.0",
+    "langchain": "^0.3.4",
     "next": "16.2.6",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.7.284",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "weaviate-client": "^3.13.0"

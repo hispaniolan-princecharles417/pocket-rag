@@ -1,9 +1,12 @@
 
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import fs from "fs";
+import path from "path";
+import { Document } from "@langchain/core/documents";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import weaviate from "weaviate-client";
 import { WeaviateStore } from "@langchain/weaviate";
 import { OllamaEmbeddings, Ollama } from "@langchain/ollama";
+import settings from "./settings";
 
 
 
@@ -13,8 +16,31 @@ const embeddings = new OllamaEmbeddings({
 });
 
 export async function loadPDF(pdfPath: string) {
-  const loader = new PDFLoader(pdfPath);
-  const rawDocs = await loader.load();
+  // Use pdfjs-dist directly — compatible with Node.js 24 (pdf-parse@1.1.1 is not)
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const workerPath = path.resolve("node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs");
+  pdfjsLib.GlobalWorkerOptions.workerSrc = workerPath;
+
+  const fileBuffer = fs.readFileSync(pdfPath);
+  const pdfDoc = await pdfjsLib.getDocument({ data: new Uint8Array(fileBuffer) }).promise;
+
+  const rawDocs: Document[] = [];
+  for (let i = 1; i <= pdfDoc.numPages; i++) {
+    const page = await pdfDoc.getPage(i);
+    const textContent = await page.getTextContent();
+    const text = textContent.items.map((item: any) => item.str).join(" ");
+    rawDocs.push(new Document({ pageContent: text, metadata: { loc: { pageNumber: i } } }));
+  }
+
+  // Detect scanned (image-only) PDFs — no text extractable
+  const totalText = rawDocs.map(d => d.pageContent.trim()).join("");
+  if (totalText.length < 50) {
+    throw new Error(
+      "This PDF appears to be a scanned image PDF. " +
+      "This app currently only supports text-based PDFs. " +
+      "Please upload a PDF where text can be selected and copied."
+    );
+  }
 
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 350,
@@ -28,20 +54,44 @@ export async function loadPDF(pdfPath: string) {
     doc.pageContent = `search_document: Page ${pageNum}:\n${doc.pageContent}`;
   });
 
-
+  if (settings.LOCAL_DEBUGGING) {
+    const debugDir = path.join(process.cwd(), "_local_debug");
+    fs.mkdirSync(debugDir, { recursive: true });
+    const lines = docs.map((d, i) => `--- Chunk ${i + 1} ---\n${d.pageContent}\n`);
+    fs.writeFileSync(
+      path.join(debugDir, "debug_uploaded_file_chunks.txt"),
+      `Total chunks: ${docs.length}\n\n` + lines.join("\n"),
+      "utf8"
+    );
+  }
 
   try {
     const client = await weaviate.connectToLocal();
-    await WeaviateStore.fromDocuments(
-      docs,
-      embeddings,
-      {
-        client,
-        indexName: "PdfDocs",
-      }
-    );
 
-    console.log("Inserted successfully into Weaviate");
+    // Always recreate the collection to ensure text property has indexSearchable=true
+    // Without this, Weaviate's BM25 hybrid search fails with "No indexed properties"
+    const exists = await client.collections.exists("PdfDocs");
+    if (exists) {
+      await client.collections.delete("PdfDocs");
+    }
+
+    await client.collections.create({
+      name: "PdfDocs",
+      properties: [
+        {
+          name: "text",
+          dataType: "text" as any,
+          indexSearchable: true,
+        },
+      ],
+    });
+
+    await WeaviateStore.fromDocuments(docs, embeddings, {
+      client,
+      indexName: "PdfDocs",
+    });
+
+    console.log(`Inserted ${docs.length} chunks into Weaviate`);
   } catch (err) {
     console.error(err);
   }
@@ -51,6 +101,7 @@ export async function loadPDF(pdfPath: string) {
     message: "PDF indexed successfully",
   };
 }
+
 
 export async function askQuestion(question: string, model: string = "gemma4") {
   const client = await weaviate.connectToLocal();
@@ -83,6 +134,19 @@ ${context}
 Question:
 ${question}
 `);
+
+  if (settings.LOCAL_DEBUGGING) {
+    const debugDir = path.join(process.cwd(), "_local_debug");
+    fs.mkdirSync(debugDir, { recursive: true });
+    const entry = [
+      `=== ${new Date().toISOString()} ===$`,
+      `QUESTION: ${question}`,
+      `CONTEXT:\n${context || "(empty)"}`,
+      `ANSWER: ${response}`,
+      "",
+    ].join("\n");
+    fs.appendFileSync(path.join(debugDir, "debug_qna.txt"), entry + "\n", "utf8");
+  }
 
   return {
     answer: response,

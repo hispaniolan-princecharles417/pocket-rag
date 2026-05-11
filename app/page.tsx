@@ -63,17 +63,18 @@ export default function Home() {
         body: formData,
       });
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
+      const data = await res.json();
+
+      if (!res.ok || data.success === false) {
+        setMessages(prev => [...prev, { role: "bot", text: `❌ Upload failed: ${data.error}` }]);
+        return;
       }
 
-      const data = await res.json();
       setStatus("PDF Indexed ✅");
       setMessages(prev => [...prev, { role: "bot", text: `Successfully indexed ${data.fileName}! What would you like to know about it?` }]);
       setFile(null);
     } catch (err: any) {
-      alert("Upload failed: " + err.message);
+      setMessages(prev => [...prev, { role: "bot", text: `❌ Upload failed: ${err.message}` }]);
     } finally {
       setIsUploading(false);
     }
