@@ -89,7 +89,10 @@ Top 5 Chunks + Your Question
 
 ## Prerequisites — Install These First
 
-### 1. Node.js (v24.15.0 recommended)
+> [!NOTE]
+> PocketRAG works on **macOS, Windows, and Linux**. All tools below are cross-platform.
+
+### 1. Node.js (v24.15.0)
 Download from: https://nodejs.org/
 
 To verify: open your terminal and run:
@@ -98,7 +101,7 @@ node --version
 # Should print: v24.15.0
 ```
 
-> This project was built and tested on **Node.js v24.15.0**. Any version v18+ should work, but v24.15.0 is recommended to avoid compatibility issues.
+> This project was built and tested on **Node.js v24.15.0**. Use this version to avoid compatibility issues.
 
 ### 2. Docker Desktop
 Docker lets you run Weaviate without installing it directly.
@@ -169,7 +172,7 @@ ollama pull phi3:mini
 npm install --legacy-peer-deps
 ```
 
-> The `--legacy-peer-deps` flag is needed because some LangChain packages have minor version conflicts. This flag tells npm to install anyway.
+> The `--legacy-peer-deps` flag is needed because some LangChain packages have minor version conflicts. This is safe and required.
 
 ### Step 4 — Run the App
 
@@ -219,6 +222,8 @@ If you upload an unsupported PDF, the app will show a clear error message in the
 | `ollama pull` fails | Make sure Ollama is installed and running (`ollama serve` in terminal) |
 | Docker command fails | Make sure Docker Desktop is open and running |
 | `npm install` errors | Try `npm install --legacy-peer-deps` — the flag is required |
+| **Windows:** `Cannot find module 'lightningcss.win32-x64-msvc.node'` | Delete `node_modules`, then run `npm install --legacy-peer-deps` again — `lightningcss` is now an explicit dependency and will install the correct Windows binary automatically |
+| **Windows:** `EBADPLATFORM` error for `@tailwindcss/oxide-darwin-arm64` | You have an old version of the repo. Pull the latest code — this macOS-only package has been removed from `package.json` |
 
 ---
 
