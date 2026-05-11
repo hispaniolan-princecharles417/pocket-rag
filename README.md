@@ -1,6 +1,6 @@
-# PDF RAG Assistant
+# PocketRAG
 
-A fully **local, privacy-first AI chatbot** that lets you upload any PDF and ask questions about it in plain English — no internet, no cloud APIs, everything runs on your own computer.
+A fully **offline, privacy-first AI chatbot** that lets you upload any PDF and ask questions about it in plain English — no internet, no cloud APIs, everything runs on your own computer.
 
 > **Zero AI knowledge required.** This guide walks you through every step from installation to your first answer.
 
