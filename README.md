@@ -1,8 +1,23 @@
-# PocketRAG
+# PocketRAG — Local RAG for PDF Documents
 
-A fully **offline, privacy-first AI chatbot** that lets you upload any PDF and ask questions about it in plain English — no internet, no cloud APIs, everything runs on your own computer.
+> **Run AI on your own computer. No cloud. No API keys. No data leaves your machine.**
 
-> **Zero AI knowledge required.** This guide walks you through every step from installation to your first answer.
+**PocketRAG** is a fully offline, self-hosted **Retrieval-Augmented Generation (RAG)** application that lets you chat with any PDF using local AI models. Built with **Ollama**, **Weaviate**, and **Next.js** — it runs entirely on your laptop, even without internet.
+
+**Perfect for:** private documents, sensitive data, offline environments, air-gapped systems, or anyone who wants a free, local alternative to ChatGPT PDF tools.
+
+---
+
+## Key Features
+
+- 🔒 **100% Offline & Private** — No data sent to any server. Everything runs locally.
+- 🤖 **Local LLM** — Uses small language models (Gemma 4, Phi-3 Mini) via Ollama. No GPU needed.
+- 🔍 **Hybrid Search** — Combines dense vector (semantic) search + BM25 keyword search for high-precision retrieval.
+- 📄 **PDF Document Q&A** — Upload any text-based PDF and ask questions in plain English.
+- 🗄️ **Local Vector Database** — Weaviate runs in Docker on your machine. No cloud vector DB needed.
+- ⚡ **Grounded Answers** — The model only answers from your document. No hallucination from external knowledge.
+- 🧩 **Switchable Models** — Toggle between Gemma 4 (capable) and Phi-3 Mini (faster) in the UI.
+- 🛠️ **Developer-Friendly** — Built-in debug mode writes chunk logs and Q&A traces to local files.
 
 ---
 
@@ -15,13 +30,14 @@ Imagine you give a very smart assistant a book to read. Instead of memorizing th
 That's exactly what this app does with your PDF:
 
 1. **Reads your PDF** and breaks it into small searchable pieces (called "chunks")
-2. **Stores those chunks** in a local database
-3. **When you ask a question**, it finds the most relevant chunks
-4. **Feeds those chunks** to an AI model to generate a human-readable answer
+2. **Stores those chunks** in a local vector database (Weaviate)
+3. **When you ask a question**, it runs hybrid search to find the most relevant chunks
+4. **Feeds those chunks** to a local LLM (via Ollama) to generate a human-readable answer
 
-The AI never guesses — it only answers from your document.
+The AI never guesses — it only answers from your document. This technique is called **Retrieval-Augmented Generation (RAG)**.
 
 ---
+
 
 ## What Tools Are Used (and Why)
 
