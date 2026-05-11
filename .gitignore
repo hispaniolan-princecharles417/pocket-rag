@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lock file — install with: npm install --legacy-peer-deps
+package-lock.json
+
+# uploaded PDFs (runtime files, not source code)
+/uploads/*
+!uploads/.gitkeep
+
+# debug logs
+log.txt
