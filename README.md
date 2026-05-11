@@ -270,3 +270,5 @@ doc-search-app/
 │   └── debug_qna.txt
 └── uploads/                   # Temporary storage for uploaded PDFs
 ```
+## UI
+<img width="2870" height="1550" alt="image" src="https://github.com/user-attachments/assets/ab8f36b2-2ff8-43f4-9f8d-bccb33345d67" />
