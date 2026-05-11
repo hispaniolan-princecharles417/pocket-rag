@@ -32,6 +32,7 @@ The AI never guesses — it only answers from your document.
 | **nomic-embed-text** | Converts text into numbers (vectors) for smart search | Best open-source embedding model for retrieval |
 | **Weaviate** | Local vector database that stores and searches chunks | Supports Hybrid Search (keyword + semantic) out of the box |
 | **Docker** | Runs Weaviate as a container | Easy, no-install way to run Weaviate locally |
+| **pdfjs-dist** | Extracts text from PDF files page by page | Mozilla's official PDF library — works with Node.js 24, no native dependencies |
 | **Next.js** | The web framework for the chat UI | React-based, runs locally in your browser |
 
 ---
@@ -41,6 +42,7 @@ The AI never guesses — it only answers from your document.
 ### Step 1 — PDF Upload & Indexing
 ```
 Your PDF
+  → pdfjs-dist extracts text from each page (text-based PDFs only)
   → Split into ~350 character chunks (with 50 char overlap)
   → Each chunk is labelled with its page number
   → nomic-embed-text converts each chunk into a vector (list of numbers)
