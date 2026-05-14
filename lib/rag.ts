@@ -1,6 +1,7 @@
 
 import fs from "fs";
 import path from "path";
+import url from "url";
 import { Document } from "@langchain/core/documents";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import weaviate from "weaviate-client";
@@ -19,7 +20,7 @@ export async function loadPDF(pdfPath: string) {
   // Use pdfjs-dist directly — compatible with Node.js 24 (pdf-parse@1.1.1 is not)
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const workerPath = path.resolve("node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = workerPath;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = url.pathToFileURL(workerPath).href;
 
   const fileBuffer = fs.readFileSync(pdfPath);
   const pdfDoc = await pdfjsLib.getDocument({ data: new Uint8Array(fileBuffer) }).promise;
